@@ -27,7 +27,7 @@ export default class MainScene {
   width;
   height;
   guiObj = {
-    y: 0,
+    progress: 0,
     showTitle: true,
   };
 
@@ -162,7 +162,7 @@ export default class MainScene {
       fragmentShader,
       uniforms: {
         uPointSize: {
-          value: 5,
+          value: 8,
         },
         uTexture: {
           value: LoaderManager.assets['image'].texture,
@@ -173,10 +173,14 @@ export default class MainScene {
         uRows: {
           value: rows,
         },
+        uProgress: {
+          value: 0,
+        },
       },
     });
     const mesh = new Points( geometry, material );
 
+    this.material = material;
     this.scene.add(mesh);
   }
 
@@ -192,8 +196,10 @@ export default class MainScene {
   setGUI() {
     const titleEl = document.querySelector('.main-title');
     const gui = new GUI();
-    gui.add(this.guiObj, 'y', -3, 3)
-      .onChange(this.guiChange);
+    gui.add(this.guiObj, 'progress', 0, 1)
+      .onChange(() => {
+        this.material.uniforms.uProgress.value = this.guiObj.progress;
+      });
     gui
       .add(this.guiObj, 'showTitle')
       .name('show title')
@@ -248,7 +254,4 @@ export default class MainScene {
     this.renderer.setSize(this.width, this.height);
   };
 
-  guiChange = () => {
-    if (this.mesh) this.mesh.position.y = this.guiObj.y;
-  };
 }
