@@ -1,7 +1,7 @@
 // Test import of a JavaScript module
-import Scene from '@/js/components/scene'
+import Scene from '@/js/components/scene';
 
 (() => {
   // scene
-  new Scene()
-})()
+  new Scene();
+})();

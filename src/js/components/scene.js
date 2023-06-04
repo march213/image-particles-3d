@@ -4,33 +4,35 @@ import {
   Scene,
   PerspectiveCamera,
   Mesh,
-  SphereGeometry,
+  BufferGeometry,
   MeshMatcapMaterial,
+  BufferAttribute,
+  MeshBasicMaterial,
   AxesHelper,
-} from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import Stats from 'stats-js'
-import LoaderManager from '@/js/managers/LoaderManager'
-import GUI from 'lil-gui'
+} from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import Stats from 'stats-js';
+import LoaderManager from '@/js/managers/LoaderManager';
+import GUI from 'lil-gui';
 
 export default class MainScene {
-  canvas
-  renderer
-  scene
-  camera
-  controls
-  stats
-  width
-  height
+  canvas;
+  renderer;
+  scene;
+  camera;
+  controls;
+  stats;
+  width;
+  height;
   guiObj = {
     y: 0,
     showTitle: true,
-  }
+  };
 
   constructor() {
-    this.canvas = document.querySelector('.scene')
+    this.canvas = document.querySelector('.scene');
 
-    this.init()
+    this.init();
   }
 
   init = async () => {
@@ -40,25 +42,25 @@ export default class MainScene {
         name: 'matcap',
         texture: './img/matcap.png',
       },
-    ]
+    ];
 
-    await LoaderManager.load(assets)
+    await LoaderManager.load(assets);
 
-    this.setStats()
-    this.setGUI()
-    this.setScene()
-    this.setRender()
-    this.setCamera()
-    this.setControls()
-    this.setAxesHelper()
+    this.setStats();
+    this.setGUI();
+    this.setScene();
+    this.setRender();
+    this.setCamera();
+    this.setControls();
+    this.setAxesHelper();
 
-    this.setSphere()
+    this.setParticlesGrid();
 
-    this.handleResize()
+    this.handleResize();
 
     // start RAF
-    this.events()
-  }
+    this.events();
+  };
 
   /**
    * Our Webgl renderer, an object that will draw everything in our canvas
@@ -68,7 +70,7 @@ export default class MainScene {
     this.renderer = new WebGLRenderer({
       canvas: this.canvas,
       antialias: true,
-    })
+    });
   }
 
   /**
@@ -76,8 +78,8 @@ export default class MainScene {
    * https://threejs.org/docs/?q=scene#api/en/scenes/Scene
    */
   setScene() {
-    this.scene = new Scene()
-    this.scene.background = new Color(0xffffff)
+    this.scene = new Scene();
+    this.scene.background = new Color(0xffffff);
   }
 
   /**
@@ -88,18 +90,18 @@ export default class MainScene {
    * https://threejs.org/docs/?q=pers#api/en/cameras/PerspectiveCamera
    */
   setCamera() {
-    const aspectRatio = this.width / this.height
-    const fieldOfView = 60
-    const nearPlane = 0.1
-    const farPlane = 10000
+    const aspectRatio = this.width / this.height;
+    const fieldOfView = 60;
+    const nearPlane = 0.1;
+    const farPlane = 10000;
 
-    this.camera = new PerspectiveCamera(fieldOfView, aspectRatio, nearPlane, farPlane)
-    this.camera.position.y = 5
-    this.camera.position.x = 5
-    this.camera.position.z = 5
-    this.camera.lookAt(0, 0, 0)
+    this.camera = new PerspectiveCamera(fieldOfView, aspectRatio, nearPlane, farPlane);
+    this.camera.position.y = 0;
+    this.camera.position.x = 0;
+    this.camera.position.z = 25;
+    this.camera.lookAt(0, 0, 0);
 
-    this.scene.add(this.camera)
+    this.scene.add(this.camera);
   }
 
   /**
@@ -107,8 +109,8 @@ export default class MainScene {
    * https://threejs.org/docs/?q=orbi#examples/en/controls/OrbitControls
    */
   setControls() {
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-    this.controls.enableDamping = true
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.enableDamping = true;
     // this.controls.dampingFactor = 0.04
   }
 
@@ -117,50 +119,64 @@ export default class MainScene {
    * https://threejs.org/docs/?q=Axesh#api/en/helpers/AxesHelper
    */
   setAxesHelper() {
-    const axesHelper = new AxesHelper(3)
-    this.scene.add(axesHelper)
+    const axesHelper = new AxesHelper(3);
+    this.scene.add(axesHelper);
   }
 
-  /**
-   * Create a SphereGeometry
-   * https://threejs.org/docs/?q=box#api/en/geometries/SphereGeometry
-   * with a Basic material
-   * https://threejs.org/docs/?q=mesh#api/en/materials/MeshBasicMaterial
-   */
-  setSphere() {
-    const geometry = new SphereGeometry(1, 32, 32)
-    const material = new MeshMatcapMaterial({ matcap: LoaderManager.assets['matcap'].texture })
+  setParticlesGrid() {
+    const geometry = new BufferGeometry();
 
-    this.mesh = new Mesh(geometry, material)
-    this.scene.add(this.mesh)
+    // create a simple square shape. We duplicate the top left and bottom right
+    // vertices because each vertex needs to appear once per triangle.
+    const vertices = new Float32Array( [
+      -1.0, -1.0, 0.0, // v0
+	    1.0, -1.0, 0.0, // v1
+	    1.0, 1.0, 0.0, // v2
+
+	    1.0, 1.0, 0.0, // v3
+      -1.0, 1.0, 0.0, // v4
+      -1.0, -1.0, 0.0, // v5
+    ] );
+
+    // itemSize = 3 because there are 3 values (components) per vertex
+    geometry.setAttribute( 'position', new BufferAttribute( vertices, 3 ) );
+    const material = new MeshBasicMaterial( {
+      color: 0xff0000,
+    } );
+    const mesh = new Mesh( geometry, material );
+
+    this.scene.add(mesh);
   }
 
   /**
    * Build stats to display fps
    */
   setStats() {
-    this.stats = new Stats()
-    this.stats.showPanel(0)
-    document.body.appendChild(this.stats.dom)
+    this.stats = new Stats();
+    this.stats.showPanel(0);
+    document.body.appendChild(this.stats.dom);
   }
 
   setGUI() {
-    const titleEl = document.querySelector('.main-title')
-    const gui = new GUI()
-    gui.add(this.guiObj, 'y', -3, 3).onChange(this.guiChange)
+    const titleEl = document.querySelector('.main-title');
+    const gui = new GUI();
+    gui.add(this.guiObj, 'y', -3, 3)
+      .onChange(this.guiChange);
     gui
       .add(this.guiObj, 'showTitle')
       .name('show title')
       .onChange(() => {
-        titleEl.style.display = this.guiObj.showTitle ? 'block' : 'none'
-      })
+        titleEl.style.display = this.guiObj.showTitle ? 'block' : 'none';
+      });
   }
   /**
    * List of events
    */
   events() {
-    window.addEventListener('resize', this.handleResize, { passive: true })
-    this.draw(0)
+    window.addEventListener('resize', this.handleResize, {
+      passive: true,
+    });
+    this.draw(0);
   }
 
   // EVENTS
@@ -173,34 +189,34 @@ export default class MainScene {
    */
   draw = () => {
     // now: time in ms
-    this.stats.begin()
+    this.stats.begin();
 
-    if (this.controls) this.controls.update() // for damping
-    this.renderer.render(this.scene, this.camera)
+    if (this.controls) this.controls.update(); // for damping
+    this.renderer.render(this.scene, this.camera);
 
-    this.stats.end()
-    this.raf = window.requestAnimationFrame(this.draw)
-  }
+    this.stats.end();
+    this.raf = window.requestAnimationFrame(this.draw);
+  };
 
   /**
    * On resize, we need to adapt our camera based
    * on the new window width and height and the renderer
    */
   handleResize = () => {
-    this.width = window.innerWidth
-    this.height = window.innerHeight
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
 
     // Update camera
-    this.camera.aspect = this.width / this.height
-    this.camera.updateProjectionMatrix()
+    this.camera.aspect = this.width / this.height;
+    this.camera.updateProjectionMatrix();
 
-    const DPR = window.devicePixelRatio ? window.devicePixelRatio : 1
+    const DPR = window.devicePixelRatio ? window.devicePixelRatio : 1;
 
-    this.renderer.setPixelRatio(DPR)
-    this.renderer.setSize(this.width, this.height)
-  }
+    this.renderer.setPixelRatio(DPR);
+    this.renderer.setSize(this.width, this.height);
+  };
 
   guiChange = () => {
-    if (this.mesh) this.mesh.position.y = this.guiObj.y
-  }
+    if (this.mesh) this.mesh.position.y = this.guiObj.y;
+  };
 }
