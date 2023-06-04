@@ -151,7 +151,7 @@ export default class MainScene {
       fragmentShader,
       uniforms: {
         uPointSize: {
-          value: 10,
+          value: 5,
         },
       },
     });
