@@ -29,7 +29,7 @@ export default class MainScene {
   height;
   guiObj = {
     progress: 0,
-    frequency: 0,
+    frequency: 0.18,
   };
 
   constructor() {
@@ -191,6 +191,9 @@ export default class MainScene {
         uFrequency: {
           value: this.guiObj.frequency,
         },
+        uTime: {
+          value: 0,
+        },
       },
     });
     const mesh = new Points( geometry, material );
@@ -238,12 +241,14 @@ export default class MainScene {
    * Everything that happens in the scene is drawed here
    * @param {Number} now
    */
-  draw = () => {
+  draw = (time) => {
     // now: time in ms
     this.stats.begin();
 
     if (this.controls) this.controls.update(); // for damping
     this.renderer.render(this.scene, this.camera);
+
+    this.material.uniforms.uTime.value = time * 0.001;
 
     this.stats.end();
     this.raf = window.requestAnimationFrame(this.draw);
