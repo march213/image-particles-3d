@@ -25,5 +25,8 @@ void main() {
 
   vec4 texture = texture2D(uTexture, uv);
   gl_FragColor = texture;
+  if (gl_FragColor.a < 0.1) {
+    discard;
+  }
   gl_FragColor.a *= circle(gl_PointCoord, 0.2);
 }

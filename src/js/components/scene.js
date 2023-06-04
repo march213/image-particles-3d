@@ -15,6 +15,7 @@ import LoaderManager from '@/js/managers/LoaderManager';
 import GUI from 'lil-gui';
 import vertexShader from '@/js/glsl/main.vert';
 import fragmentShader from '@/js/glsl/main.frag';
+import { randFloat } from 'three/src/math/MathUtils';
 
 export default class MainScene {
   canvas;
@@ -41,7 +42,7 @@ export default class MainScene {
     const assets = [
       {
         name: 'image',
-        texture: './img/img-1.jpg',
+        texture: './img/img-2.jpg',
       },
     ];
 
@@ -80,7 +81,7 @@ export default class MainScene {
    */
   setScene() {
     this.scene = new Scene();
-    this.scene.background = new Color(0xffffff);
+    this.scene.background = new Color(0x000000);
   }
 
   /**
@@ -132,21 +133,31 @@ export default class MainScene {
     const rows = 9 * multiplier;
 
     const vertices = [];
+    const initialPositions = [];
 
     for (let i = 0; i < columns; i++) {
       for (let j = 0; j < rows; j++) {
         const x = i - columns / 2;
         const y = j - rows / 2;
+
         const point = [x, y, 0];
         vertices.push(...point);
+
+        const initialPoint = [x, y, randFloat(10, 100)];
+        initialPositions.push(...initialPoint);
       }
     }
 
     const vertices32 = new Float32Array(vertices);
+    const initialPositions32 = new Float32Array(initialPositions);
 
     geometry.setAttribute( 'position', new BufferAttribute(vertices32, 3 ) );
+    geometry.setAttribute( 'initialPosition', new BufferAttribute(initialPositions32, 3 ) );
+
     const material = new ShaderMaterial({
       transparent: true,
+      depthWrite: false,
+      depthTest: false,
       vertexShader,
       fragmentShader,
       uniforms: {
