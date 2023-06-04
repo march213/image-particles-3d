@@ -146,11 +146,12 @@ export default class MainScene {
 
     geometry.setAttribute( 'position', new BufferAttribute(vertices32, 3 ) );
     const material = new ShaderMaterial({
+      transparent: true,
       vertexShader,
       fragmentShader,
       uniforms: {
         uPointSize: {
-          value: 5,
+          value: 10,
         },
       },
     });
