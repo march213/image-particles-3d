@@ -16,6 +16,7 @@ import GUI from 'lil-gui';
 import vertexShader from '@/js/glsl/main.vert';
 import fragmentShader from '@/js/glsl/main.frag';
 import { randFloat } from 'three/src/math/MathUtils';
+import { gsap } from 'gsap';
 
 export default class MainScene {
   canvas;
@@ -57,6 +58,7 @@ export default class MainScene {
     this.setAxesHelper();
 
     this.setParticlesGrid();
+    this.animateIn();
 
     this.handleResize();
 
@@ -82,6 +84,16 @@ export default class MainScene {
   setScene() {
     this.scene = new Scene();
     this.scene.background = new Color(0x000000);
+  }
+
+  animateIn() {
+    gsap.fromTo(this.material.uniforms.uProgress, {
+      value: 0,
+    }, {
+      value: 1,
+      duration: 4,
+      ease: 'Power4.easeOut',
+    });
   }
 
   /**
@@ -143,7 +155,7 @@ export default class MainScene {
         const point = [x, y, 0];
         vertices.push(...point);
 
-        const initialPoint = [x, y, randFloat(10, 100)];
+        const initialPoint = [x, y, randFloat(0, 500)];
         initialPositions.push(...initialPoint);
       }
     }
