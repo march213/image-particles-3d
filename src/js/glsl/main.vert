@@ -1,8 +1,9 @@
-attribute vec2 uv;
-attribute vec2 position;
-varying vec2 vUv;
+uniform float uPointSize;
+uniform float scale;
 
 void main() {
-  vUv = uv;
-  gl_Position = vec4(position, 0, 1);
+	#include <begin_vertex>
+	#include <project_vertex>
+
+	gl_PointSize = uPointSize;
 }

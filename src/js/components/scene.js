@@ -6,13 +6,15 @@ import {
   BufferGeometry,
   BufferAttribute,
   AxesHelper,
-  PointsMaterial,
   Points,
+  ShaderMaterial,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Stats from 'stats-js';
 import LoaderManager from '@/js/managers/LoaderManager';
 import GUI from 'lil-gui';
+import vertexShader from '@/js/glsl/main.vert';
+import fragmentShader from '@/js/glsl/main.frag';
 
 export default class MainScene {
   canvas;
@@ -97,7 +99,7 @@ export default class MainScene {
     this.camera = new PerspectiveCamera(fieldOfView, aspectRatio, nearPlane, farPlane);
     this.camera.position.y = 0;
     this.camera.position.x = 0;
-    this.camera.position.z = 25;
+    this.camera.position.z = 250;
     this.camera.lookAt(0, 0, 0);
 
     this.scene.add(this.camera);
@@ -125,8 +127,9 @@ export default class MainScene {
   setParticlesGrid() {
     const geometry = new BufferGeometry();
 
-    const columns = 16;
-    const rows = 9;
+    const multiplier = 18;
+    const columns = 16 * multiplier;
+    const rows = 9 * multiplier;
 
     const vertices = [];
 
@@ -142,9 +145,15 @@ export default class MainScene {
     const vertices32 = new Float32Array(vertices);
 
     geometry.setAttribute( 'position', new BufferAttribute(vertices32, 3 ) );
-    const material = new PointsMaterial( {
-      color: 0xff0000,
-    } );
+    const material = new ShaderMaterial({
+      vertexShader,
+      fragmentShader,
+      uniforms: {
+        uPointSize: {
+          value: 5,
+        },
+      },
+    });
     const mesh = new Points( geometry, material );
 
     this.scene.add(mesh);
