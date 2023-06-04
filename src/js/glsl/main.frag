@@ -1,6 +1,7 @@
 uniform sampler2D uTexture;
 uniform float uColumns;
 uniform float uRows;
+uniform float uProgress;
 
 varying vec2 vTextureCoord;
 
@@ -29,4 +30,5 @@ void main() {
     discard;
   }
   gl_FragColor.a *= circle(gl_PointCoord, 0.2);
+  gl_FragColor.a *= uProgress;
 }
