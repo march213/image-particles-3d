@@ -40,8 +40,8 @@ export default class MainScene {
     // Preload assets before initiating the scene
     const assets = [
       {
-        name: 'matcap',
-        texture: './img/matcap.png',
+        name: 'image',
+        texture: './img/img-1.jpg',
       },
     ];
 
@@ -152,6 +152,15 @@ export default class MainScene {
       uniforms: {
         uPointSize: {
           value: 5,
+        },
+        uTexture: {
+          value: LoaderManager.assets['image'].texture,
+        },
+        uColumns: {
+          value: columns,
+        },
+        uRows: {
+          value: rows,
         },
       },
     });
