@@ -29,7 +29,7 @@ export default class MainScene {
   height;
   guiObj = {
     progress: 0,
-    showTitle: true,
+    frequency: 0,
   };
 
   constructor() {
@@ -186,7 +186,10 @@ export default class MainScene {
           value: rows,
         },
         uProgress: {
-          value: 0,
+          value: this.guiObj.progress,
+        },
+        uFrequency: {
+          value: this.guiObj.frequency,
         },
       },
     });
@@ -206,19 +209,17 @@ export default class MainScene {
   }
 
   setGUI() {
-    const titleEl = document.querySelector('.main-title');
     const gui = new GUI();
     gui.add(this.guiObj, 'progress', 0, 1)
       .onChange(() => {
         this.material.uniforms.uProgress.value = this.guiObj.progress;
       });
-    gui
-      .add(this.guiObj, 'showTitle')
-      .name('show title')
+    gui.add(this.guiObj, 'frequency', 0, 1)
       .onChange(() => {
-        titleEl.style.display = this.guiObj.showTitle ? 'block' : 'none';
+        this.material.uniforms.uFrequency.value = this.guiObj.frequency;
       });
   }
+
   /**
    * List of events
    */
