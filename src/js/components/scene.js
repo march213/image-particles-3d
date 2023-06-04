@@ -3,12 +3,11 @@ import {
   WebGLRenderer,
   Scene,
   PerspectiveCamera,
-  Mesh,
   BufferGeometry,
-  MeshMatcapMaterial,
   BufferAttribute,
-  MeshBasicMaterial,
   AxesHelper,
+  PointsMaterial,
+  Points,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Stats from 'stats-js';
@@ -126,24 +125,27 @@ export default class MainScene {
   setParticlesGrid() {
     const geometry = new BufferGeometry();
 
-    // create a simple square shape. We duplicate the top left and bottom right
-    // vertices because each vertex needs to appear once per triangle.
-    const vertices = new Float32Array( [
-      -1.0, -1.0, 0.0, // v0
-	    1.0, -1.0, 0.0, // v1
-	    1.0, 1.0, 0.0, // v2
+    const columns = 16;
+    const rows = 9;
 
-	    1.0, 1.0, 0.0, // v3
-      -1.0, 1.0, 0.0, // v4
-      -1.0, -1.0, 0.0, // v5
-    ] );
+    const vertices = [];
 
-    // itemSize = 3 because there are 3 values (components) per vertex
-    geometry.setAttribute( 'position', new BufferAttribute( vertices, 3 ) );
-    const material = new MeshBasicMaterial( {
+    for (let i = 0; i < columns; i++) {
+      for (let j = 0; j < rows; j++) {
+        const x = i - columns / 2;
+        const y = j - rows / 2;
+        const point = [x, y, 0];
+        vertices.push(...point);
+      }
+    }
+
+    const vertices32 = new Float32Array(vertices);
+
+    geometry.setAttribute( 'position', new BufferAttribute(vertices32, 3 ) );
+    const material = new PointsMaterial( {
       color: 0xff0000,
     } );
-    const mesh = new Mesh( geometry, material );
+    const mesh = new Points( geometry, material );
 
     this.scene.add(mesh);
   }
